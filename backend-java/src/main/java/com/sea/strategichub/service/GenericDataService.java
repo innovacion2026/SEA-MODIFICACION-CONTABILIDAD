@@ -43,6 +43,10 @@ public class GenericDataService {
         TABLE_MAP.put("auditoria", "LOGS_AUDITORIA");
         TABLE_MAP.put("usuarios", "USUARIOS");
         TABLE_MAP.put("roles", "ROLES");
+        TABLE_MAP.put("cont_mapeo", "CONT_MAPEO_CUENTAS");
+        TABLE_MAP.put("cont_comprobantes", "CONT_COMPROBANTES_INTERFAZ");
+        TABLE_MAP.put("cont_lineas", "CONT_COMPROBANTES_LINEAS");
+        TABLE_MAP.put("cont_logs", "CONT_LOG_TRANSMISION");
     }
 
     public String getTableName(String module) {
@@ -215,135 +219,28 @@ public class GenericDataService {
                     value = value.toString();
                 }
             }
+            if (value instanceof String) {
+                value = fixUtf8Encoding((String) value);
+            }
             lowerMap.put(key, value);
         }
-
-        // Aliasing & fallback fields for frontend column compatibility
-
-        // 1. CODIGO
-        if (!lowerMap.containsKey("codigo") || lowerMap.get("codigo") == null) {
-            if (lowerMap.containsKey("referencia")) {
-                lowerMap.put("codigo", lowerMap.get("referencia"));
-            } else if (lowerMap.containsKey("comprobante")) {
-                lowerMap.put("codigo", lowerMap.get("comprobante"));
-            } else if (lowerMap.containsKey("factura")) {
-                lowerMap.put("codigo", lowerMap.get("factura"));
-            } else if (lowerMap.containsKey("id")) {
-                Object idVal = lowerMap.get("id");
-                lowerMap.put("codigo", idVal != null ? "COD-0" + idVal : "COD-01");
-            }
-        }
-
-        // 2. PROVEEDOR / NOMBRE / BENEFICIARIO / SOLICITANTE / USUARIO
-        if (lowerMap.containsKey("username") && !lowerMap.containsKey("usuario")) {
-            lowerMap.put("usuario", lowerMap.get("username"));
-        }
-        if (lowerMap.containsKey("razon_social") && !lowerMap.containsKey("nombre")) {
-            lowerMap.put("nombre", lowerMap.get("razon_social"));
-        }
-        if (lowerMap.containsKey("proveedor") && !lowerMap.containsKey("beneficiario")) {
-            lowerMap.put("beneficiario", lowerMap.get("proveedor"));
-        }
-
-        // 3. ROL
-        if (!lowerMap.containsKey("rol") || lowerMap.get("rol") == null) {
-            if (lowerMap.containsKey("nombre") && !lowerMap.containsKey("username") && !lowerMap.containsKey("razon_social")) {
-                lowerMap.put("rol", lowerMap.get("nombre"));
-            } else {
-                lowerMap.put("rol", "Administrador");
-            }
-        }
-
-        // 4. MONTO
-        if (!lowerMap.containsKey("monto") || lowerMap.get("monto") == null) {
-            if (lowerMap.containsKey("monto_total")) {
-                lowerMap.put("monto", lowerMap.get("monto_total"));
-            } else if (lowerMap.containsKey("monto_estimado")) {
-                lowerMap.put("monto", lowerMap.get("monto_estimado"));
-            } else if (lowerMap.containsKey("monto_asignado")) {
-                lowerMap.put("monto", lowerMap.get("monto_asignado"));
-            } else if (lowerMap.containsKey("monto_factura")) {
-                lowerMap.put("monto", lowerMap.get("monto_factura"));
-            } else if (lowerMap.containsKey("monto_max_aprob")) {
-                lowerMap.put("monto", lowerMap.get("monto_max_aprob"));
-            }
-        }
-
-        // 5. FECHA
-        if (!lowerMap.containsKey("fecha") || lowerMap.get("fecha") == null) {
-            if (lowerMap.containsKey("emision")) {
-                lowerMap.put("fecha", lowerMap.get("emision"));
-            } else if (lowerMap.containsKey("fecha_creacion")) {
-                lowerMap.put("fecha", lowerMap.get("fecha_creacion"));
-            } else if (lowerMap.containsKey("fecha_emision")) {
-                lowerMap.put("fecha", lowerMap.get("fecha_emision"));
-            } else if (lowerMap.containsKey("fecha_solicitud")) {
-                lowerMap.put("fecha", lowerMap.get("fecha_solicitud"));
-            } else if (lowerMap.containsKey("fecha_ingreso")) {
-                lowerMap.put("fecha", lowerMap.get("fecha_ingreso"));
-            }
-        }
-
-        // 6. ESTATUS / ESTADO / ETAPA
-        if (!lowerMap.containsKey("estatus") || lowerMap.get("estatus") == null) {
-            if (lowerMap.containsKey("estado")) {
-                lowerMap.put("estatus", lowerMap.get("estado"));
-            } else {
-                lowerMap.put("estatus", "Activo");
-            }
-        }
-        if (!lowerMap.containsKey("etapa") || lowerMap.get("etapa") == null) {
-            lowerMap.put("etapa", lowerMap.get("estatus"));
-        }
-
-        // 7. PERMISOS, USUARIOS, CIUDAD, UNIDAD, RESPONSABLE
-        if (!lowerMap.containsKey("permisos")) lowerMap.put("permisos", 24);
-        if (!lowerMap.containsKey("usuarios")) lowerMap.put("usuarios", 3);
-        if (!lowerMap.containsKey("unidad")) lowerMap.put("unidad", "Administración");
-        if (!lowerMap.containsKey("responsable")) lowerMap.put("responsable", lowerMap.getOrDefault("nombre", "A. Linares"));
-        if (!lowerMap.containsKey("ciudad")) {
-            if (lowerMap.containsKey("direccion")) {
-                String dir = String.valueOf(lowerMap.get("direccion"));
-                lowerMap.put("ciudad", dir.contains("Mérida") ? "Mérida" : "Caracas");
-            } else {
-                lowerMap.put("ciudad", "Caracas");
-            }
-        }
-        if (!lowerMap.containsKey("periodo")) lowerMap.put("periodo", "Q1 2026");
-        if (!lowerMap.containsKey("calificacion")) lowerMap.put("calificacion", "A");
-        if (!lowerMap.containsKey("destinatario")) lowerMap.put("destinatario", lowerMap.getOrDefault("proveedor", "Distribuidora Andina C.A."));
-        if (!lowerMap.containsKey("tipo")) lowerMap.put("tipo", "General");
-        if (!lowerMap.containsKey("documento")) lowerMap.put("documento", lowerMap.getOrDefault("nombre_documento", "RIF Actualizado"));
-        if (!lowerMap.containsKey("vencimiento")) lowerMap.put("vencimiento", "2026-12-31");
-        if (!lowerMap.containsKey("cedula")) lowerMap.put("cedula", "V-12.345.678");
-        if (!lowerMap.containsKey("cargo")) lowerMap.put("cargo", "Gerente");
-        if (!lowerMap.containsKey("comite")) lowerMap.put("comite", "CM-01");
-        if (!lowerMap.containsKey("decision")) lowerMap.put("decision", "Aprobado");
-        if (!lowerMap.containsKey("prioridad")) lowerMap.put("prioridad", "Normal");
-        if (!lowerMap.containsKey("etapa_negocio")) lowerMap.put("etapa_negocio", "Solicitud");
-        if (!lowerMap.containsKey("proveedores_count")) lowerMap.put("proveedores_count", 3);
-        if (!lowerMap.containsKey("ganador")) lowerMap.put("ganador", lowerMap.getOrDefault("proveedor", "Distribuidora Andina C.A."));
-        if (!lowerMap.containsKey("puntaje")) lowerMap.put("puntaje", 90.5);
-        if (!lowerMap.containsKey("centro_costo")) lowerMap.put("centro_costo", "IT Planta");
-        if (!lowerMap.containsKey("partida")) lowerMap.put("partida", "PART-401.01.02");
-        if (!lowerMap.containsKey("vigencia")) lowerMap.put("vigencia", "2026-12-31");
-        if (!lowerMap.containsKey("oc_asociada")) lowerMap.put("oc_asociada", "OC-2026-0188");
-        if (!lowerMap.containsKey("estado")) lowerMap.put("estado", lowerMap.getOrDefault("estatus", "Recibida"));
-        if (!lowerMap.containsKey("comprobante")) lowerMap.put("comprobante", "RET-IVA-00891");
-        if (!lowerMap.containsKey("naturaleza")) lowerMap.put("naturaleza", "Nacional");
-        if (!lowerMap.containsKey("hospedaje")) lowerMap.put("hospedaje", 110);
-        if (!lowerMap.containsKey("alimentacion")) lowerMap.put("alimentacion", 45);
-        if (!lowerMap.containsKey("transporte")) lowerMap.put("transporte", 150);
-        if (!lowerMap.containsKey("solicitud")) lowerMap.put("solicitud", "VIA-2026-077");
-        if (!lowerMap.containsKey("concepto")) lowerMap.put("concepto", "Gastos generales");
-        if (!lowerMap.containsKey("categoria")) lowerMap.put("categoria", "Servicios");
-        if (!lowerMap.containsKey("registros")) lowerMap.put("registros", 45);
-        if (!lowerMap.containsKey("ultima")) lowerMap.put("ultima", "2026-04-10");
-        if (!lowerMap.containsKey("lista")) lowerMap.put("lista", "Categorías");
-        if (!lowerMap.containsKey("valores")) lowerMap.put("valores", 8);
-        if (!lowerMap.containsKey("modulo")) lowerMap.put("modulo", "General");
-        if (!lowerMap.containsKey("accion")) lowerMap.put("accion", "Consulta");
-
         return lowerMap;
+    }
+
+    public String fixUtf8Encoding(String str) {
+        if (str == null) return null;
+        try {
+            if (str.contains("Ã") || str.contains("Â") || str.contains("â") || str.contains("©")) {
+                byte[] bytes = str.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
+                String fixed = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+                if (!fixed.contains("ï¿½")) {
+                    str = fixed;
+                }
+            }
+        } catch (Exception e) {}
+        str = str.replace("ǭ", "a")
+                 .replace("ï¿½", "")
+                 .replace("", "");
+        return str;
     }
 }

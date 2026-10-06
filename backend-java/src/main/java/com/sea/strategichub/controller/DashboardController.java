@@ -38,7 +38,7 @@ public class DashboardController {
             String proximasFacturasSql = "SELECT proveedor, monto, vencimiento as \"fecha\" " +
                     "FROM cxp " +
                     "WHERE estatus != 'Pagado' AND estatus != 'Pagada' " +
-                    "ORDER BY vencimiento ASC LIMIT 5";
+                    "ORDER BY vencimiento ASC FETCH FIRST 5 ROWS ONLY";
             List<Map<String, Object>> proximasFacturas = jdbcTemplate.queryForList(proximasFacturasSql)
                     .stream().map(genericDataService::keysToLowerCase).collect(Collectors.toList());
             stats.put("proximasFacturas", proximasFacturas);
@@ -46,9 +46,9 @@ public class DashboardController {
             // 4. Gastos por Mes (últimos 6 meses)
             String gastosMensualesSql = "SELECT TO_CHAR(fecha, 'Mon') as \"mes\", SUM(monto) as \"monto\" " +
                     "FROM pagos " +
-                    "WHERE fecha >= CURRENT_DATE - INTERVAL '6 months' " +
-                    "GROUP BY TO_CHAR(fecha, 'Mon'), DATE_TRUNC('month', fecha) " +
-                    "ORDER BY DATE_TRUNC('month', fecha)";
+                    "WHERE fecha >= SYSDATE - 180 " +
+                    "GROUP BY TO_CHAR(fecha, 'Mon') " +
+                    "ORDER BY MIN(fecha)";
             List<Map<String, Object>> gastosMensuales = jdbcTemplate.queryForList(gastosMensualesSql)
                     .stream().map(genericDataService::keysToLowerCase).collect(Collectors.toList());
             stats.put("gastosMensuales", gastosMensuales);
@@ -56,8 +56,8 @@ public class DashboardController {
             // 5. Envejecimiento de Deuda (Aging)
             String agingSql = "SELECT " +
                     "  CASE " +
-                    "    WHEN vencimiento - CURRENT_DATE <= 30 THEN '0-30 días' " +
-                    "    WHEN vencimiento - CURRENT_DATE <= 60 THEN '31-60 días' " +
+                    "    WHEN vencimiento - SYSDATE <= 30 THEN '0-30 días' " +
+                    "    WHEN vencimiento - SYSDATE <= 60 THEN '31-60 días' " +
                     "    ELSE '+60 días' " +
                     "  END as \"rango\", " +
                     "  SUM(monto) as \"monto\" " +
@@ -65,8 +65,8 @@ public class DashboardController {
                     "WHERE estatus != 'Pagado' AND estatus != 'Pagada' " +
                     "GROUP BY " +
                     "  CASE " +
-                    "    WHEN vencimiento - CURRENT_DATE <= 30 THEN '0-30 días' " +
-                    "    WHEN vencimiento - CURRENT_DATE <= 60 THEN '31-60 días' " +
+                    "    WHEN vencimiento - SYSDATE <= 30 THEN '0-30 días' " +
+                    "    WHEN vencimiento - SYSDATE <= 60 THEN '31-60 días' " +
                     "    ELSE '+60 días' " +
                     "  END";
             List<Map<String, Object>> aging = jdbcTemplate.queryForList(agingSql)
@@ -77,7 +77,7 @@ public class DashboardController {
             String centrosCostoSql = "SELECT centro_costo as \"name\", SUM(monto_estimado) as \"value\" " +
                     "FROM requerimientos " +
                     "GROUP BY centro_costo " +
-                    "ORDER BY \"value\" DESC LIMIT 4";
+                    "ORDER BY \"value\" DESC FETCH FIRST 4 ROWS ONLY";
             List<Map<String, Object>> centrosCosto = jdbcTemplate.queryForList(centrosCostoSql)
                     .stream().map(genericDataService::keysToLowerCase).collect(Collectors.toList());
             stats.put("centrosCosto", centrosCosto);

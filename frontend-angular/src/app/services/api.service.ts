@@ -10,6 +10,26 @@ export class ApiService {
 
   constructor(private http: HttpClient) {}
 
+  get<T>(path: string): Observable<T> {
+    const url = path.startsWith('/') ? `${this.apiBase}${path}` : `${this.apiBase}/${path}`;
+    return this.http.get<T>(url);
+  }
+
+  post<T>(path: string, body: any): Observable<T> {
+    const url = path.startsWith('/') ? `${this.apiBase}${path}` : `${this.apiBase}/${path}`;
+    return this.http.post<T>(url, body);
+  }
+
+  put<T>(path: string, body: any): Observable<T> {
+    const url = path.startsWith('/') ? `${this.apiBase}${path}` : `${this.apiBase}/${path}`;
+    return this.http.put<T>(url, body);
+  }
+
+  delete<T>(path: string): Observable<T> {
+    const url = path.startsWith('/') ? `${this.apiBase}${path}` : `${this.apiBase}/${path}`;
+    return this.http.delete<T>(url);
+  }
+
   fetchModuleData(moduleKey: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiBase}/data/${moduleKey}`);
   }

@@ -71,6 +71,7 @@ export const menu: MenuNode[] = [
       },
     ],
   },
+  { title: "Interfaz Contable Central", path: "/app/contabilidad", icon: "arrow-left-right", description: "Transmisión de asientos contables y mapeo de cuentas con la Contabilidad Central." },
   {
     title: "Reportes y Análisis", path: "/app/reportes", icon: "bar-chart-3",
     children: [

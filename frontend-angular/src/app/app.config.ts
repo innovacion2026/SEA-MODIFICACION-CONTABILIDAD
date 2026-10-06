@@ -13,7 +13,8 @@ import {
   LogOut, Menu, CalendarDays, Edit, Trash2, Plus, Search, X, Eye, Check, 
   AlertTriangle, Info, FileUp, Download, ArrowLeft, CheckCircle, AlertCircle,
   ClipboardList, Package, CreditCard, CircleDollarSign, User, Lock,
-  PieChart, FileSpreadsheet, GitCommit, Scale, ZoomIn, ListTree, CalendarCheck, ShieldAlert
+  PieChart, FileSpreadsheet, GitCommit, Scale, ZoomIn, ListTree, CalendarCheck, ShieldAlert,
+  Send, RotateCw, Database, CheckCircle2, Clock, Pencil
 } from 'lucide-angular';
 
 const icons = {
@@ -25,7 +26,8 @@ const icons = {
   LogOut, Menu, CalendarDays, Edit, Trash2, Plus, Search, X, Eye, Check, 
   AlertTriangle, Info, FileUp, Download, ArrowLeft, CheckCircle, AlertCircle,
   ClipboardList, Package, CreditCard, CircleDollarSign, User, Lock,
-  PieChart, FileSpreadsheet, GitCommit, Scale, ZoomIn, ListTree, CalendarCheck, ShieldAlert
+  PieChart, FileSpreadsheet, GitCommit, Scale, ZoomIn, ListTree, CalendarCheck, ShieldAlert,
+  Send, RotateCw, Database, CheckCircle2, Clock, Pencil
 };
 
 export const appConfig: ApplicationConfig = {

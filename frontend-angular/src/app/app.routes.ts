@@ -71,6 +71,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/presupuesto/presupuesto-reportes.component').then(m => m.PresupuestoReportesComponent)
       },
       {
+        path: 'contabilidad',
+        loadComponent: () => import('./pages/contabilidad/contabilidad-interfaz.component').then(m => m.ContabilidadInterfazComponent)
+      },
+      {
         path: '**',
         loadComponent: () => import('./pages/module-page/module-page.component').then(m => m.ModulePageComponent)
       }
